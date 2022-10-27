@@ -1,0 +1,67 @@
+﻿@page "/counter"
+
+<MudGrid>
+<MudItem xs="3">
+<MudSelect T="string" Required="false" id="employeeReportSelector"
+           OnClose="@rptPicked" Clearable="true"
+           Label="Report:" MultiSelection="false" @bind-Value="reportValue">
+    @foreach (var rpt in employeeReports) {
+        <MudSelectItem T="string" Value="@rpt">@rpt</MudSelectItem>
+    }
+    </MudSelect>
+</MudItem>
+<MudItem xs="3">
+    <MudSelect T="string" Required="false"
+        MultiSelectionTextFunc="@(new Func<List<string>, string>(GetMultiSelectionText))"
+        Label="Employee Type:" OnClearButtonClick="@ClearEmpl"
+        MultiSelection="true" @bind-Value="value" @bind-SelectedValues="employeeTypes">
+        @foreach (var type in types) {
+            <MudSelectItem T="string" Value="@type">@type</MudSelectItem>
+        }
+    </MudSelect>
+</MudItem>
+</MudGrid>
+@code {
+    public int ButtonClicked { get; set; }
+    public string[] employeeReports = { "Availability", "Calendar", "Vacation", "Schedule" };
+    public IEnumerable<string> employeeTypes { get; set; }
+    public string value { get; set; }
+    public string reportValue { get; set; }
+    public int employeeType;
+
+    public static string[] types = {
+            "Hygienist",
+            "Assistant",
+            "EDDA",
+            "Reception",
+            "DDS"
+    };
+
+    private void ClearEmpl() {
+        employeeType = 0;
+    }
+
+    public int GetEmployeeTypeValue(string employeeTypeStr) {
+        int bit = 1;
+        int employeeType = 0;
+
+        foreach (var type in types) {
+            if (employeeTypeStr.Contains(type))
+                employeeType = employeeType | bit;
+            bit = bit << 1;
+        }
+        return (employeeType);
+    }
+
+    public void rptPicked()  {
+        Console.WriteLine("rptPicked");
+    }
+
+    private string GetMultiSelectionText(List<string> selectedValues) {
+        string result = string.Join(", ", selectedValues.Select(x => x));
+        employeeType = GetEmployeeTypeValue(result);
+        Console.WriteLine("GetMultiSelectionText");
+        return result;
+    }
+
+}
